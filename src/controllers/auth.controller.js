@@ -2,7 +2,7 @@ import { UserModel } from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-export const signIn = async (req, res, next) => {
+export const signUp = async (req, res, next) => {
   const { userName, email, password } = req.body;
   try {
     const user = await UserModel.findOne({ email });
@@ -38,8 +38,45 @@ export const signIn = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ message: `Internal server error ` });
+  }
+};
+
+export const signIn = async (req, res, next) => {
+  const { email, password } = req.body;
+  try {
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const validPassword = bcrypt.compareSync(password, user.password);
+
+    if (!validPassword) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_TOKEN,
+      { expiresIn: "1h" }
+    );
+
+    const userResponse = {
+      _id: user._id,
+      userName: user.userName,
+      email: user.email,
+      avatar: user.avatar,
+    };
+
+    res.setHeader("Authorization", `Bearer ${token}`);
+
     return res
-      .status(500)
-      .json({ message: `Internal server error --> ${error} ` });
+      .status(200)
+      .json({ message: "User Login Successfully", user: userResponse });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: `Internal server error ` });
   }
 };
