@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import "../db_connect.js";
 import bodyParser from "body-parser";
+import { AuthRouter } from "./routes/auth.route.js";
 
 dotenv.config();
 
@@ -20,3 +21,5 @@ app.get("/api", (req, res) => {
 });
 
 app.listen(port, () => console.log(`Server is Runnig at Port number ${port}`));
+
+app.use("/api", AuthRouter);
