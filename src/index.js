@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import "./db_connect.js";
+import "../db_connect.js";
 import bodyParser from "body-parser";
 
 dotenv.config();
